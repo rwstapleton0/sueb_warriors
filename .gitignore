@@ -1,0 +1,6 @@
+# sui / move
+/kiosk_tone/build/
+
+# pnpm / node
+/site/node_modules
+/site/pnpm-lock.yaml
