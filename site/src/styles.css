@@ -1,0 +1,50 @@
+button {
+    color: #000;
+    background-color: #fff;
+    padding: 0 24px;
+    min-width: 200px;
+    max-width: 280px;
+    height: 40px;
+    border-radius: 10px;
+    border: 2px solid #fff;
+    text-overflow: ellipsis;
+}
+input {
+    background-color: #111113;
+    border: 2px solid #fff;
+    padding: 6px;
+    width: 280px;
+    border-radius: 6px;
+}
+input:focus { 
+    border: 2px solid #fff;
+    padding: 6px;
+    width: 280px;
+    border-radius: 6px;
+}
+.hashHeading {
+    max-width: 280px;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+button:hover {
+    color: #fff;
+    background-color: #181818;
+}
+button:disabled {
+    background-color: #575757;
+    border: 2px solid #575757;
+    color: #000;
+
+}
+
+.sueb-frame {
+    border: 2px dashed #fff;
+    border-radius: 14px;
+    background-color: #111113;
+}
+
+.selected {
+    border: 2px solid #fff;
+}
