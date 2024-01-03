@@ -7,37 +7,8 @@ import "./styles.css";
 import { useGetKioskData, useGetKiosks, imageUrls, SuebObject } from "./data";
 import { KioskManager } from "./components/kioskManager";
 import { MintSuebToKiosk } from "./components/mintSuebToKiosk";
+import { SuebArena } from "./components/suebArenaFrame";
 
-interface SuebArenaProps {
-
-}
-
-function SuebArena(props: SuebArenaProps) {
-    return (
-        <Container py="3">
-            <Heading size="7">Sueb Arena</Heading>
-            <Container pt="6">
-                <Flex gap="8" justify="center" align="center">
-                    <Container className="sueb-frame" style={{ width: "248px", height: "392px" }} grow="0">
-                        <Flex align="center">
-                            <Container>The center</Container>
-                        </Flex>
-                    </Container>
-
-                    <Heading>VS</Heading>
-
-                    <Container className="sueb-frame" style={{ width: "248px", height: "392px" }} grow="0">
-                        <Flex align="center">
-                            <Container>The center</Container>
-                        </Flex>
-                    </Container>
-                </Flex>
-
-            </Container>
-
-        </Container>
-    )
-}
 
 function App() {
     const client = useSuiClient();
@@ -101,37 +72,8 @@ function App() {
 
             <SuebArena />
 
-            {/* {selectedKiosk ? <MintSuebToKiosk
-                kioskCap={selectedKiosk}
-                kioskClient={kioskClient} /> : <></>}
-
-            <KioskDataDisplay kioskItems={kioskItems || []} /> */}
         </Container>
     );
 }
 
-// get kiosk and mint sueb to kiosk
-
 export default App;
-
-
-
-
-
-// interface KioskDataDisplayProps {
-//     kioskItems: KioskItem[]
-// }
-
-// function KioskDataDisplay(props: KioskDataDisplayProps) {
-//     console.log(props.kioskItems)
-//     const items = props.kioskItems.map((data: KioskItem, i: number) => (
-//         <Heading className="hashHeading" key={i}>{data.objectId}</Heading>
-//     ))
-//     return (
-//         <Container>
-//             <Flex gap="2">
-//                 {items}
-//             </Flex>
-//         </Container>
-//     )
-// }

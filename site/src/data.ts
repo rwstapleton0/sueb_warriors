@@ -19,10 +19,10 @@ export type SuebObject = {
 }
 
 export const imageUrls = [
-    "QmV7KskYhhQ7JBuNwL1rtGnkDTuWkpqxVhCG5z4ZeNuuTT?filename=sueb_w1.png",
-    "QmXCxj1m4nEUigYm6KiCft4UHhDvuWYRLCFfTMLMSLiSVN?filename=sueb_w2.png",
-    "QmRS7VShUpQ9JPqtoF1AcJkaGyNpRnaNL3xXsvaDJa4L3M?filename=sueb_w3.png",
-    "QmPrd1cBB3oD1akNegyefaZed3L4CwBeaBK2Pn4yXBBFSx?filename=sueb_w4.png",
+    "https://pub-e4480e97f3884c27b323b3f1273cd96b.r2.dev/pngs/sueb_w1.png",
+    "https://pub-e4480e97f3884c27b323b3f1273cd96b.r2.dev/pngs/sueb_w2.png",
+    "https://pub-e4480e97f3884c27b323b3f1273cd96b.r2.dev/pngs/sueb_w3.png",
+    "https://pub-e4480e97f3884c27b323b3f1273cd96b.r2.dev/pngs/sueb_w4.png",
 ]
 
 function getRandomInt() {

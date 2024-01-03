@@ -6,7 +6,7 @@ import { CaretDownIcon, CaretUpIcon } from "@radix-ui/react-icons";
 import "../styles.css";
 
 import { SuebObject, imageUrls, mintSuebInKiosk } from "../data";
-import {  SuebFrameList } from "./suebFrame";
+import { SuebFrameList } from "./suebFrame";
 
 interface MintSuebToKioskProps {
     kioskCap: KioskOwnerCap | undefined,
@@ -14,7 +14,7 @@ interface MintSuebToKioskProps {
 }
 
 export function MintSuebToKiosk(props: MintSuebToKioskProps) {
-    
+
     const { mutate: signAndExecuteTransactionBlock } = useSignAndExecuteTransactionBlock();
 
     const [showMint, setShowMint] = useState(false);
@@ -36,9 +36,11 @@ export function MintSuebToKiosk(props: MintSuebToKioskProps) {
 
     return (
         <Container
-            py="2"
-            style={props.kioskCap ? { borderBottom: "1px solid #fff" } : { borderBottom: "1px solid #575757" }}>
+            my="2"
+            style={props.kioskCap ? { position: "relative" } : { borderBottom: "1px solid #575757" }}>
             <Container
+                pb={"2"}
+                style={!showMint ? { borderBottom: "1px solid #fff" } : {}}
                 onClick={props.kioskCap ? () => setShowMint(!showMint) : () => { }}
             >
                 <Flex justify="between" align="center">
@@ -53,43 +55,47 @@ export function MintSuebToKiosk(props: MintSuebToKioskProps) {
             {
                 showMint == true
                     ?
-                    <>
-                        <Container py="2" pb="3">
-                            <Flex gap="2">
+                    <Container style={{ width: "100%" }} position={"absolute"}>
+                        <Container pb={"2"} style={props.kioskCap ? {
+                            borderBottom: "1px solid #fff",
+                            backgroundColor: "#111113"
+                        } : {}}>
+                            <Container py="2" pb="3" >
                                 <SuebFrameList
                                     suebList={items}
                                     selectedSueb={selectedSueb}
                                     setSelectedSueb={setSelectedSueb}
                                 />
+                            </Container>
+                            <Flex justify="between">
+                                <Flex align="center" gap="2">
+                                    <Heading>Give your Sueb a name: </Heading>
+                                    <input type="text"
+                                        style={{}}
+                                        value={name}
+                                        onChange={e => setName(e.target.value)}
+                                    />
+                                </Flex>
+                                <button
+                                    disabled={
+                                        selectedSueb == undefined
+                                        || name == undefined
+                                        || props.kioskCap == undefined
+                                    }
+                                    style={{ width: "100%" }}
+                                    onClick={() => mintSuebInKiosk(
+                                        name, selectedSueb!, props.kioskCap!,
+                                        props.kioskClient,
+                                        signAndExecuteTransactionBlock
+                                    )}
+                                >
+                                    <Heading className="hashHeading" size="3">Mint to Kiosk</Heading>
+                                </button>
                             </Flex>
                         </Container>
-                        <Flex justify="between">
-                            <Flex align="center" gap="2">
-                                <Heading>Give your Sueb a name: </Heading>
-                                <input type="text"
-                                style={{}}
-                                    value={name}
-                                    onChange={e => setName(e.target.value)}
-                                />
-                            </Flex>
-                            <button
-                                disabled={
-                                    selectedSueb == undefined
-                                    || name == undefined
-                                    || props.kioskCap == undefined
-                                }
-                                style={{ width: "100%" }}
-                                onClick={() => mintSuebInKiosk(
-                                    name, selectedSueb!, props.kioskCap!,
-                                    props.kioskClient,
-                                    signAndExecuteTransactionBlock
-                                )}
-                            >
-                                <Heading className="hashHeading" size="3">Mint to Kiosk</Heading>
-                            </button>
-                        </Flex>
-                    </>
-                    : <></>
+                    </Container>
+                    :
+                    <></>
             }
         </Container>
     )

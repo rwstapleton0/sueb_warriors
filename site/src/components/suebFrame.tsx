@@ -17,31 +17,55 @@ export function SuebFrame(props: SuebFrameProps) {
             className={`sueb-frame ${props.isSelected ? "selected" : ""}`}
             onClick={() => props.setSelectedSueb()}
         >
-            <Container p="2" style={{ height: "46px"}}>
+            <Container p="2" style={{ height: "46px" }}>
                 <Heading>{props.sueb.name}</Heading>
             </Container>
-            <Container 
-            mb="2"
-            style={{
-                width: "220px",
-                height: "220px",
-                border: "2px solid #fff",
-                borderRadius: "10px"
-            }}>
+            <Container
+                mb="2"
+                style={{
+                    width: "220px",
+                    height: "220px",
+                    border: "2px solid #fff",
+                    borderRadius: "10px"
+                }}>
+                <img src={props.sueb.imageUrl} style={{ borderRadius: "6px" }} />
                 {/* <img src={`../assets/sueb_w${props.index}.png`} /> */}
                 {/* <img crossOrigin='anonymous' src={"https://pub-e4480e97f3884c27b323b3f1273cd96b.r2.dev/sueb-warriors/pngs/sueb_w1.png"} /> */}
             </Container>
-            <Flex justify="between">
-                <Heading>Energy:</Heading>
-                <Heading>{props.sueb.energy ?? "??"}</Heading>
-            </Flex>
-            <Flex justify="between">
-                <Heading>Power:</Heading>
-                <Heading>{props.sueb.power ?? "??"}</Heading>
-            </Flex>
-            <Flex justify="between">
-                <Heading>rush:</Heading>
-                <Heading>{props.sueb.rush ?? "??"}</Heading>
+            <Container pb={"2"} style={{ borderBottom: "1px solid #fff"}}>
+                <Flex justify="between">
+                    <Heading>Energy:</Heading>
+                    <Heading>{props.sueb.energy ?? "??"}</Heading>
+                </Flex>
+                <Flex justify="between">
+                    <Heading>Power:</Heading>
+                    <Heading>{props.sueb.power ?? "??"}</Heading>
+                </Flex>
+                <Flex justify="between">
+                    <Heading>Rush:</Heading>
+                    <Heading>{props.sueb.rush ?? "??"}</Heading>
+                </Flex>
+            </Container>
+            <Heading>Items</Heading>
+            <Flex justify={"between"}>
+                <Box style={{
+                    width: "60px",
+                    height: "60px",
+                    border: "2px solid #fff",
+                    borderRadius: "10px"
+                }}></Box>
+                <Box style={{
+                    width: "60px",
+                    height: "60px",
+                    border: "2px solid #fff",
+                    borderRadius: "10px"
+                }}></Box>
+                <Box style={{
+                    width: "60px",
+                    height: "60px",
+                    border: "2px solid #fff",
+                    borderRadius: "10px"
+                }}></Box>
             </Flex>
         </Container>
     )
@@ -64,10 +88,10 @@ export function SuebFrameList(props: SuebFrameListProps) {
         />
     ))
     return (
-        <Container>
+        <>
             <Flex gap="2" justify="between">
                 {items}
             </Flex>
-        </Container>
+        </>
     )
 }
