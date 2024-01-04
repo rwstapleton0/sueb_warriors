@@ -1,4 +1,4 @@
-import { Box, Container, Flex, Heading } from "@radix-ui/themes";
+import { Container, Flex, Heading } from "@radix-ui/themes";
 import { Crosshair2Icon } from "@radix-ui/react-icons";
 
 
@@ -28,11 +28,11 @@ function SuebArenaFrame() {
     )
 }
 
-interface SuebArenaProps {
+// interface SuebArenaProps {
 
-}
+// }
 
-export function SuebArena(props: SuebArenaProps) {
+export function SuebArena() {
     return (
         <Container>
             <Heading size="7">Sueb Arena</Heading>

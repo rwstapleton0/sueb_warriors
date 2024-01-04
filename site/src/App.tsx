@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { ConnectButton, useCurrentAccount, useSignAndExecuteTransactionBlock, useSuiClient } from "@mysten/dapp-kit";
-import { KioskClient, KioskItem, KioskOwnerCap, Network } from "@mysten/kiosk";
+import { ConnectButton, useCurrentAccount, useSuiClient } from "@mysten/dapp-kit";
+import { KioskClient, KioskOwnerCap, Network } from "@mysten/kiosk";
 import { Box, Container, Flex, Heading } from "@radix-ui/themes";
 import "./styles.css";
 
-import { useGetKioskData, useGetKiosks, imageUrls, SuebObject } from "./data";
+import { useGetKiosks, imageUrls, SuebObject } from "./data";
 import { KioskManager } from "./components/kioskManager";
 import { MintSuebToKiosk } from "./components/mintSuebToKiosk";
 import { SuebArena } from "./components/suebArenaFrame";
@@ -24,8 +24,8 @@ function App() {
 
     useGetKiosks(account, kioskClient, setKiosks);
 
-    const [kioskItems, setkioskItems] = useState<KioskItem[]>();
-    useGetKioskData(selectedKiosk, kioskClient, setkioskItems);
+    // const [kioskItems, setkioskItems] = useState<KioskItem[]>();
+    // useGetKioskData(selectedKiosk, kioskClient, setkioskItems);
 
     // const [selectedSueb, setSelectedSueb] = useState<number>();
 
