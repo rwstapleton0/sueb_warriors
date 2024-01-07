@@ -21,9 +21,9 @@ module sueb_warriors::sueb_warriors {
 
     struct SUEB_WARRIORS has drop {}
 
-    public fun get_sueb_id(self: &SuebWarrior): &ID {
-        object::uid_as_inner(&self.id)
-    }
+    // public fun get_sueb_id(self: &SuebWarrior): &ID { // why am i dont this??
+    //     object::uid_as_inner(&self.id)
+    // }
 
     public fun add_current_game(self: &mut SuebWarrior, game_id: ID) {
         if (option::is_none(&self.current_game)) {

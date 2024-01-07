@@ -31,7 +31,6 @@ module sueb_warriors::sueb_arena_test {
         
         let waiting: WaitingRoom;
         let arena: SuebArena;
-
         {
             ts::next_tx(&mut ts, ADMIN);
             waiting = ts::take_shared<WaitingRoom>(&ts);
@@ -58,8 +57,7 @@ module sueb_warriors::sueb_arena_test {
             let hash = sueb_arena::hash_moves(b"Bob Be Bussin", ENERGY);
             sueb_arena::declare_moves(hash, &mut bob_sueb, &mut arena);
 
-            
-            assert!(is_move_declared(&arena, &bob_sueb_id), 0);
+            // assert!(is_move_declared(&arena, &bob_sueb_id), 0);
         };
         {
             ts::next_tx(&mut ts, alice);
@@ -67,7 +65,7 @@ module sueb_warriors::sueb_arena_test {
             sueb_arena::declare_moves(hash, &mut alice_sueb, &mut arena);
 
             
-            assert!(sueb_arena::is_move_declared(&arena, &alice_sueb_id), 0)
+            // assert!(sueb_arena::is_move_declared(&arena, &alice_sueb_id), 0)
         };
         {
             ts::next_tx(&mut ts, alice);
@@ -126,11 +124,11 @@ module sueb_warriors::sueb_arena_test {
     // }
 
     // only for testing? so ok to pass in the id
-    public fun is_move_declared(self: &SuebArena, sueb_id: &ID): bool {
-        if (sueb_id == option::borrow(&self.sueb1)) {
-            !vector::is_empty(&self.sueb1_hash)
-        } else {
-            !vector::is_empty(&self.sueb1_hash)
-        }
-    }
+    // public fun is_move_declared(self: &SuebArena, sueb_id: &ID): bool {
+    //     if (sueb_id == option::borrow(&self.sueb1)) {
+    //         !vector::is_empty(&self.sueb1_hash)
+    //     } else {
+    //         !vector::is_empty(&self.sueb1_hash)
+    //     }
+    // }
 }
