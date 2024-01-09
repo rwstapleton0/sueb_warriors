@@ -39,16 +39,20 @@ module sueb_warriors::sueb_arena {
 
     const PICK_WARRIOR: u8 = 5;
     const DECLARE_MOVE: u8 = 6;
-    const REVEAL_MOVE: u8 = 7;
-    const RESOLVE_GAME: u8 = 8;
+    const READY_TO_REVEAL: u8 = 7;
+    const REVEAL_MOVE: u8 = 8;
+    const RESOLVE_GAME: u8 = 9;
+    const GAME_FINISHED: u8 = 10;
 
     const EGameIsFull: u64 = 11;
     const EGameIsInProgress: u64 = 12;
     const EGameIsNotWaitingForMove: u64 = 13;
-    const EGameIsNotWaitingToResolve: u64 = 14;
-    const EWrongAddress: u64 = 15;
-    const EUnresolvedGame: u64 = 16;
-    const EMoveOrSaltWrong: u64 = 17;
+    const EGameIsNotReadyToReveal: u64 = 14;
+    const EGameIsNotWaitingToResolve: u64 = 15;
+    const EWrongAddress: u64 = 16;
+    const EUnresolvedGame: u64 = 17;
+    const EMoveOrSaltWrong: u64 = 18;
+    const ECantSetStatIfReveal: u64 = 19;
 
     // should use some system to check elo, elo = some equation (sueb lvl + items owns)
     struct WaitingRoom has key, store {
@@ -62,8 +66,11 @@ module sueb_warriors::sueb_arena {
 
     struct SuebStore has store { // using copy here??? I can refernce to do check but dont want it brekaing stuff...
         sueb_id: Option<ID>,
-        sueb_hash: vector<u8>,
-        sueb_move: Option<u8>,
+        hash: vector<u8>,
+        smove: Option<u8>,
+        energy: u64,
+        power: u64,
+        rush: u64,
     }
 
     struct SuebArena has key, store {
@@ -72,9 +79,11 @@ module sueb_warriors::sueb_arena {
         sueb2: SuebStore,
         game_state: u8,
         started_at: u64,
+        winner: Option<ID>,
+        diff: u64
     }
 
-    public fun update_game_state(self: &mut SuebArena, state: u8) {
+    public fun set_game_state(self: &mut SuebArena, state: u8) {
         self.game_state = state;
     }
 
@@ -95,9 +104,33 @@ module sueb_warriors::sueb_arena {
         }
     }
 
+    public fun borrow_mut_stores(self: &mut SuebArena): (&mut SuebStore, &mut SuebStore) {
+        (&mut self.sueb1, &mut self.sueb2)
+    }
+
+    fun set_winner(self: &mut SuebArena, winner: ID, diff: u64) {
+        option::fill(&mut self.winner, winner);
+        self.diff = diff;
+    }
+
     fun set_moves(self: &mut SuebArena, sueb: &SuebWarrior, checked: u8) {
         let store = borrow_mut_sueb_store(self, sueb);
-        option::fill(&mut store.sueb_move, checked);
+        option::fill(&mut store.smove, checked);
+    }
+
+    fun set_stats(self: &mut SuebArena, sueb: &SuebWarrior) {
+        assert!(!check_game_state(self, REVEAL_MOVE) ||
+            !check_game_state(self, RESOLVE_GAME),
+            ECantSetStatIfReveal);
+        let store = borrow_mut_sueb_store(self, sueb);
+        let (energy, power, rush) = sueb_warriors::get_stats(sueb);
+        store.energy = energy;
+        store.power = power;
+        store.rush = rush;
+    }
+
+    public fun check_game_state(self: &SuebArena, state: u8): bool {
+        self.game_state == state
     }
 
     fun check_addresses(self: &SuebArena, sueb: &SuebWarrior): bool {
@@ -106,29 +139,35 @@ module sueb_warriors::sueb_arena {
     }
 
     fun hashes_match(self: &SuebArena, sueb: &SuebWarrior, test: vector<u8>): bool {
-        test == borrow_sueb_store(self, sueb).sueb_hash
+        test == borrow_sueb_store(self, sueb).hash
     }
 
-    fun hashes_submitted(self: &SuebArena): bool {
-        !vector::is_empty(&self.sueb1.sueb_hash) && 
-        !vector::is_empty(&self.sueb2.sueb_hash)
+    public fun hashes_submitted(self: &SuebArena): bool {
+        !vector::is_empty(&self.sueb1.hash) && 
+        !vector::is_empty(&self.sueb2.hash)
     }
 
     fun moves_revealed(self: &SuebArena): bool {
-        option::is_some(&self.sueb1.sueb_move) && 
-        option::is_some(&self.sueb2.sueb_move)
+        option::is_some(&self.sueb1.smove) && 
+        option::is_some(&self.sueb2.smove)
     }
-
-    // public fun is_hash_empty(self: &SuebArena): bool {
-    //     vector::is_empty(&self.sueb1_hash)
-    // }
-
 
     fun init (ctx: &mut TxContext) {
         transfer::share_object(WaitingRoom {
             id: object::new(ctx),
             waiting: vector::empty(),
         });
+    }
+
+    fun create_store(sueb_id: ID): SuebStore {
+        SuebStore {
+            sueb_id: option::some(sueb_id),
+            hash: vector::empty(),
+            smove: option::none(),
+            energy: 0,
+            power: 0,
+            rush: 0
+        }
     }
 
     fun create_game(
@@ -140,18 +179,12 @@ module sueb_warriors::sueb_arena {
         let game_id = object::uid_to_inner(&id);
         transfer::share_object(SuebArena {
             id: id,
-            sueb1: SuebStore {
-                sueb_id: option::some(p1),
-                sueb_hash: vector::empty(),
-                sueb_move: option::none(),
-            },
-            sueb2: SuebStore {
-                sueb_id: option::some(p2),
-                sueb_hash: vector::empty(),
-                sueb_move: option::none(),
-            },
+            sueb1: create_store(p1),
+            sueb2: create_store(p2),
             game_state: DECLARE_MOVE,
-            started_at: clock::timestamp_ms(clock)
+            started_at: clock::timestamp_ms(clock),
+            winner: option::none(),
+            diff: 0
         });
         game_id
     }
@@ -189,12 +222,11 @@ module sueb_warriors::sueb_arena {
         sueb_warriors::add_current_game(sueb, object::id(game));
 
         let store = borrow_mut_sueb_store(game, sueb);
-        store.sueb_hash = hash;
+        vector::append(&mut store.hash, hash);
 
-        // this shouldnt happen when the secound player inputs his.
         if (hashes_submitted(game)) {
-            update_game_state(game, REVEAL_MOVE);
-        }
+            set_game_state(game, READY_TO_REVEAL); // might have to change this to waiting to reveal?
+        }// then update to reveal when either person hit reveal_moves?
     }
 
     public fun reveal_moves(
@@ -204,16 +236,23 @@ module sueb_warriors::sueb_arena {
         game: &mut SuebArena,
         // _: &mut TxContext
     ) {
-        assert!(game.game_state == REVEAL_MOVE, EGameIsNotWaitingToResolve);
+        assert!(
+            check_game_state(game, READY_TO_REVEAL) || 
+            check_game_state(game, REVEAL_MOVE),
+            EGameIsNotReadyToReveal);
         assert!(check_addresses(game, sueb), EWrongAddress);
 
+        set_stats(game, sueb);
+        
+        set_game_state(game, REVEAL_MOVE); // this should stop players from updating stats.
+
         let test = hash_moves(cry, sueb_move);
-        assert!(hashes_match(game, sueb, test), EMoveOrSaltWrong);
+        assert!(hashes_match(game, sueb, test), EMoveOrSaltWrong); // should test how this interacts with state changes.
 
         set_moves(game, sueb, sueb_move);
 
         if (moves_revealed(game)) {
-            update_game_state(game, RESOLVE_GAME);
+            set_game_state(game, RESOLVE_GAME);
         }
     }
 
@@ -222,16 +261,79 @@ module sueb_warriors::sueb_arena {
         game: &mut SuebArena,
         _: &mut TxContext
     ) {
-        assert!(game.game_state != RESOLVE_GAME, EGameIsNotWaitingToResolve);
+        assert!(check_game_state(game, RESOLVE_GAME), EGameIsNotWaitingToResolve);
         assert!(check_addresses(game, sueb), EWrongAddress);
 
+        let (store1, store2) = borrow_mut_stores(game);
 
+        let (battle_a, val_a) = compare_stores(store1, store2);
+        let (battle_b, val_b) = compare_stores(store2, store1);
+
+        // need to handle equal vals too?
+        // these really throw a spanner in the works??
+        if (battle_a == battle_b) {
+            // if 1 player wins both, 10% off suebs health? this will be worst as you level.
+            set_winner(game, battle_a, 5); // willchange 5 soon
+        } else {
+            let (winner, diff) = compare_stats(battle_a, battle_b, val_a, val_b);
+            set_winner(game, winner, diff);
+        };
+
+        set_game_state(game, GAME_FINISHED);
+
+        leave_game(game, sueb);
+    }
+
+    fun compare_stores(
+        store_a: &mut SuebStore,
+        store_b: &mut SuebStore
+    ): (ID, u64) {
+        let smove: u8 = option::extract(&mut store_a.smove); // way to do this without mut?
+        // Maybe a better way to do this, will take to scratch
+        // need to extract to copy the ID, then fill as we still need to know whos in the game?
+        let sueb_a_id = option::extract(&mut store_a.sueb_id);
+        let sueb_b_id = option::extract(&mut store_b.sueb_id);
+
+        let (oid, ostat);
+        if (smove == ENERGY) {
+            (oid, ostat) = compare_stats(
+                sueb_a_id,
+                sueb_b_id,
+                store_a.energy,
+                store_b.rush)
+        } else if (smove == POWER) {
+            (oid, ostat) = compare_stats(
+                sueb_a_id,
+                sueb_b_id,
+                store_a.power,
+                store_b.energy)
+        } else { // RUSH
+            (oid, ostat) = compare_stats(
+                sueb_a_id,
+                sueb_b_id,
+                store_a.rush,
+                store_b.power)
+        };
+        option::fill(&mut store_a.sueb_id, sueb_a_id);
+        option::fill(&mut store_b.sueb_id, sueb_b_id);
+        (oid, ostat)
+    }
+
+    // can i get a hair drier? unsure if this can be drier?
+    fun compare_stats(sueb1_id: ID, sueb2_id: ID, sueb1_val: u64, sueb2_val: u64): (ID, u64) {
+        if (sueb1_val == sueb2_val) {
+            (sueb1_id, 0)
+        } else if (sueb1_val > sueb2_val) {
+            (sueb1_id, sueb1_val - sueb2_val)
+        } else {
+            (sueb2_id, sueb2_val - sueb1_val)
+        }
     }
 
     public fun leave_game(
-        sueb: &mut SuebWarrior,
         game: &mut SuebArena,
-        _: &mut TxContext
+        sueb: &mut SuebWarrior,
+        // _: &mut TxContext
     ) {}
 
     public fun leave_waiting(

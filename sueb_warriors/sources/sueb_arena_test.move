@@ -54,23 +54,23 @@ module sueb_warriors::sueb_arena_test {
         };
         {
             ts::next_tx(&mut ts, bob);
-            let hash = sueb_arena::hash_moves(b"Bob Be Bussin", ENERGY);
+            let hash = sueb_arena::hash_moves(b"Big Basher Bob", ENERGY);
             sueb_arena::declare_moves(hash, &mut bob_sueb, &mut arena);
-
-            // assert!(is_move_declared(&arena, &bob_sueb_id), 0);
         };
         {
             ts::next_tx(&mut ts, alice);
-            let hash = sueb_arena::hash_moves(b"Alice All Agro", POWER);
+            let hash = sueb_arena::hash_moves(b"All Agro Alice", POWER);
             sueb_arena::declare_moves(hash, &mut alice_sueb, &mut arena);
 
-            
-            // assert!(sueb_arena::is_move_declared(&arena, &alice_sueb_id), 0)
+            assert!(sueb_arena::hashes_submitted(&arena), 0);
         };
         {
             ts::next_tx(&mut ts, alice);
-            sueb_arena::reveal_moves(b"Alice All Agro", POWER, &mut alice_sueb, &mut arena);
-
+            sueb_arena::reveal_moves(b"All Agro Alice", POWER, &mut alice_sueb, &mut arena);
+        };
+        {
+            ts::next_tx(&mut ts, bob);
+            sueb_arena::reveal_moves(b"Big Basher Bob", ENERGY, &mut bob_sueb, &mut arena);
         };
 
         cleanup(&mut ts, alice_sueb, bob_sueb, arena, waiting, clock, carl);
